@@ -77,9 +77,43 @@ module.exports = async function handler(req, res) {
     return upstream.text();
   }
 
+  // 글에서 낱말을 집어 오면 '사과를', '학교에서'처럼 조사가 붙어 있습니다.
+  // 사전은 표제어('사과', '학교')만 싣고 있어 그대로는 못 찾습니다.
+  // 그래서 원형으로 한 번 찾아보고, 없으면 조사를 떼고 한 번만 더 시도합니다.
+  //
+  // 긴 조사를 먼저 떼야 합니다. '에서'를 '에'보다 먼저 보지 않으면
+  // '학교에서'가 '학교에'로 잘못 잘립니다.
+  const JOSA = [
+    '으로서', '으로써', '에서는', '에게서', '이라는', '라는',
+    '으로', '에서', '에게', '한테', '까지', '부터', '조차', '마저',
+    '처럼', '보다', '만큼', '이나', '라도', '든지',
+    '은', '는', '이', '가', '을', '를', '에', '와', '과', '도', '만', '의', '로', '랑',
+  ];
+
+  function stripJosa(word) {
+    for (const josa of JOSA) {
+      // 조사를 떼고 최소 한 글자는 남아야 합니다.
+      if (word.length > josa.length && word.endsWith(josa)) {
+        return word.slice(0, -josa.length);
+      }
+    }
+    return null;
+  }
+
   let raw;
+  let matchedWord = query;
   try {
     raw = await fetchRaw(query);
+    if (!raw.trim()) {
+      const stem = stripJosa(query);
+      if (stem) {
+        const stemRaw = await fetchRaw(stem);
+        if (stemRaw.trim()) {
+          raw = stemRaw;
+          matchedWord = stem;
+        }
+      }
+    }
   } catch (e) {
     return res.status(502).json({ error: '사전 서비스에 연결하지 못했습니다.' });
   }
@@ -140,7 +174,10 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
 
   return res.status(200).json({
-    word: cleanHeadword(items[0].word) || query,
+    word: cleanHeadword(items[0].word) || matchedWord,
+    // 조사를 떼고 찾았을 때, 사용자가 무엇을 검색했는지 화면에 알려 주기 위한
+    // 값입니다. ('사과를'로 찾았는데 '사과'가 나오면 혼란스러우므로)
+    queried: query !== matchedWord ? query : '',
     hanja: (items[0].origin || '').trim(),
     pronunciation: '', // 검색 API는 발음 정보를 제공하지 않습니다.
     definitions,

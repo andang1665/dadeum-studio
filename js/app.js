@@ -624,6 +624,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') runKoDictSearch();
   });
 
+  /**
+   * 글을 쓰다가 낱말을 더블클릭하면 그 자리에서 뜻을 찾아 줍니다.
+   *
+   * 사전 버튼을 눌러 창을 열고, 단어를 다시 타이핑하는 과정이 번거롭습니다.
+   * 글을 쓰는 중에 "이 단어가 맞나?" 싶을 때 바로 확인할 수 있어야 합니다.
+   *
+   * 브라우저는 더블클릭 시 '어절' 전체(사과를, 학교에서)를 선택합니다.
+   * 조사를 떼는 일은 서버가 처리하므로 여기서는 그대로 넘깁니다.
+   */
+  function lookUpSelectedWord() {
+    const raw = inputTextarea.value.slice(
+      inputTextarea.selectionStart,
+      inputTextarea.selectionEnd
+    );
+
+    // 문장부호·공백을 털어 내고 한글만 남깁니다. 여러 어절을 드래그한 경우는
+    // 사전에 있을 리 없으므로 무시합니다.
+    const word = raw.trim().replace(/^[^가-힣A-Za-z]+|[^가-힣A-Za-z]+$/g, '');
+    if (!word || /\s/.test(word) || word.length > 20) return;
+
+    koDictInput.value = word;
+    koDictModal.classList.add('active');
+    runKoDictSearch();
+  }
+
+  inputTextarea.addEventListener('dblclick', lookUpSelectedWord);
+
   async function runKoDictSearch() {
     const query = koDictInput.value.trim();
     if (!query) return;
@@ -660,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="ko-dict-entry">
         <div class="ko-dict-word-row">
           <span class="ko-dict-word">${escapeHTML(data.word)}</span>
+          ${data.queried ? `<span class="ko-dict-pron">'${escapeHTML(data.queried)}'의 기본형</span>` : ''}
           ${data.hanja ? `<span class="ko-dict-hanja">${escapeHTML(data.hanja)}</span>` : ''}
           ${data.pronunciation ? `<span class="ko-dict-pron">${escapeHTML(data.pronunciation)}</span>` : ''}
         </div>
