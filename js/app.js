@@ -109,6 +109,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // 그 API가 없으므로, 매번 404를 받으러 가지 않도록 아예 건너뜁니다.
   const SPELLCHECK_API_ENABLED = isLocal;
 
+  // 맞춤법 규칙은 한글 단어 경계를 잡기 위해 후방 탐색 (?<!…) 을 씁니다.
+  // 이 문법은 iOS 16.3 이하 사파리에서 지원되지 않아, 그런 기기에서는
+  // 규칙을 만드는 순간 예외가 나고 검사기가 통째로 죽습니다.
+  // 아무 설명 없이 "먹통"이 되는 것이 가장 나쁘므로, 지원 여부를 미리 확인해
+  // 사용자에게 이유를 알려 줍니다.
+  const supportsLookbehind = (() => {
+    try {
+      new RegExp('(?<!가)나');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  if (!supportsLookbehind) {
+    const banner = document.getElementById('setupBanner');
+    if (banner) {
+      const title = document.getElementById('setupBannerTitle');
+      const text = document.getElementById('setupBannerText');
+      if (title) title.textContent = '이 브라우저에서는 맞춤법 검사를 실행할 수 없습니다.';
+      if (text) {
+        text.textContent =
+          ' 사용 중인 브라우저가 오래되어 검사 기능이 동작하지 않습니다. ' +
+          'iOS는 16.4 이상으로 업데이트하시거나, 크롬 등 최신 브라우저로 열어 주세요.';
+      }
+      banner.style.display = 'flex';
+    }
+  }
+
   let apiEngineAvailable = false;
   checkApiAvailability();
 

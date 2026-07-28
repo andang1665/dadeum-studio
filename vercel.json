@@ -4,6 +4,7 @@
   "buildCommand": null,
   "installCommand": null,
   "outputDirectory": ".",
+  "regions": ["icn1"],
   "cleanUrls": false,
   "trailingSlash": false
 }

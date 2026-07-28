@@ -52,7 +52,9 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: '검색어가 너무 깁니다.' });
   }
 
-  const key = process.env.STDICT_KEY;
+  // 환경 변수에 값을 붙여 넣을 때 앞뒤 공백이나 줄바꿈이 딸려 오는 일이
+  // 흔합니다. 그대로 두면 인증키가 통째로 무효가 되므로 잘라냅니다.
+  const key = (process.env.STDICT_KEY || '').trim();
   if (!key) {
     // 환경 변수를 등록하지 않았거나, 등록 후 재배포를 하지 않은 경우입니다.
     return res.status(503).json({ error: '국어사전 기능이 아직 설정되지 않았습니다.' });
@@ -62,21 +64,48 @@ module.exports = async function handler(req, res) {
   //    돌려줍니다. 그래서 원인을 찾기가 매우 어렵습니다. 실측으로 확인한 값:
   //      num=10, num=20 … (10 단위) → 정상 /  num=3 → 빈 본문
   //      sort=dict                  → 정상 /  sort=popular → 빈 본문
-  const url =
-    `${STDICT_API_URL}?key=${encodeURIComponent(key)}` +
-    `&q=${encodeURIComponent(query)}&req_type=json&num=10&sort=dict`;
+  function buildUrl(word) {
+    return (
+      `${STDICT_API_URL}?key=${encodeURIComponent(key)}` +
+      `&q=${encodeURIComponent(word)}&req_type=json&num=10&sort=dict`
+    );
+  }
+
+  async function fetchRaw(word) {
+    const upstream = await fetch(buildUrl(word));
+    if (!upstream.ok) throw new Error(`upstream ${upstream.status}`);
+    return upstream.text();
+  }
 
   let raw;
   try {
-    const upstream = await fetch(url);
-    if (!upstream.ok) throw new Error(`upstream ${upstream.status}`);
-    raw = await upstream.text();
+    raw = await fetchRaw(query);
   } catch (e) {
     return res.status(502).json({ error: '사전 서비스에 연결하지 못했습니다.' });
   }
 
-  // 검색 결과가 없을 때도 오류가 아니라 빈 본문이 옵니다.
+  // 빈 본문은 두 가지 뜻을 동시에 가집니다. 이 API의 가장 고약한 점입니다.
+  //   (가) 정말로 검색 결과가 없다
+  //   (나) 인증키가 틀렸거나 이 서버에서 API를 이용할 수 없다
+  // 둘 다 HTTP 200 + 0바이트로 똑같이 옵니다. 구분하지 않으면 설정 오류를
+  // "그런 단어 없음"으로 잘못 안내하게 되므로, 사전에 반드시 있는 낱말로
+  // 대조 요청을 한 번 보내 판별합니다. (빈 응답일 때만 실행됩니다)
   if (!raw.trim()) {
+    let controlEmpty = false;
+    try {
+      controlEmpty = !(await fetchRaw('사과')).trim();
+    } catch (e) {
+      controlEmpty = true;
+    }
+
+    if (controlEmpty) {
+      return res.status(503).json({
+        error:
+          '사전 서버가 요청을 거부했습니다. 인증키가 올바른지, 그리고 국립국어원에 ' +
+          '등록한 이용 정보가 현재 배포 주소와 맞는지 확인해 주세요.',
+        code: 'STDICT_REJECTED',
+      });
+    }
     return res.status(404).json({ error: `'${query}'에 대한 검색 결과가 없습니다.` });
   }
 
