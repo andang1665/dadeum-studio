@@ -4,6 +4,63 @@
  * ==========================================================================
  */
 
+/**
+ * 자바스크립트 정규식의 \b(단어 경계)는 \w = [A-Za-z0-9_] 를 기준으로 하므로
+ * 한글에서는 절대 매칭되지 않습니다.
+ *
+ *   /\b할수\s*있다\b/.test('할수 있다')  →  false   (규칙이 죽음)
+ *   /할수\s*있다/.test('할수 있다')       →  true
+ *
+ * 기존 규칙 47개가 모두 \b를 쓰고 있어 검사 결과가 항상 0건이었습니다.
+ * 규칙을 하나하나 고치는 대신, 실행 시점에 \b를 한글까지 포함하는
+ * 전후방 탐색(lookaround)으로 바꿔 줍니다.
+ *
+ *   앞쪽 \b  →  (?<![가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9])
+ *   뒤쪽 \b  →  (?![가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9])
+ */
+const WORD_CHARS = '가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9';
+const LOOKBEHIND = `(?<![${WORD_CHARS}])`;
+const LOOKAHEAD = `(?![${WORD_CHARS}])`;
+
+function hangulSafeSource(source) {
+  let out = '';
+  for (let i = 0; i < source.length; i++) {
+    // 이스케이프된 백슬래시(\\)는 건너뛰어, \\b 같은 표현을 잘못 바꾸지 않도록 합니다.
+    if (source[i] === '\\' && source[i + 1] === '\\') {
+      out += '\\\\';
+      i++;
+      continue;
+    }
+    if (source[i] === '\\' && source[i + 1] === 'b') {
+      // \b 바로 앞의 문자로 앞/뒤 경계를 판별합니다.
+      // 패턴 맨 앞이거나 '(', '|' 뒤라면 여는 경계로 봅니다.
+      const prev = out.replace(/\(\?:$/, '(').slice(-1);
+      out += (out === '' || prev === '(' || prev === '|') ? LOOKBEHIND : LOOKAHEAD;
+      i++;
+      continue;
+    }
+    out += source[i];
+  }
+  return out;
+}
+
+/** 규칙의 정규식을 한 번만 변환해 두고 재사용합니다. */
+function normalizeRule(rule) {
+  if (rule._normalized) return rule;
+
+  const source = rule.pattern.source;
+  if (source.includes('\\b')) {
+    const flags = rule.pattern.flags.includes('g') ? rule.pattern.flags : rule.pattern.flags + 'g';
+    rule.pattern = new RegExp(hangulSafeSource(source), flags);
+  } else if (!rule.pattern.flags.includes('g')) {
+    // exec 루프를 쓰므로 g 플래그가 없으면 무한 루프가 됩니다.
+    rule.pattern = new RegExp(source, rule.pattern.flags + 'g');
+  }
+
+  rule._normalized = true;
+  return rule;
+}
+
 class DadeumCheckerEngine {
   constructor() {
     // 1. 띄어쓰기 전용 규칙 (Category: 'red')
@@ -421,13 +478,18 @@ class DadeumCheckerEngine {
     const issues = [];
     let issueIdCounter = 1;
 
-    // Combine all rules
+    // Combine all rules. 외부 규칙 파일(js/rules-ko.js)이 로드되어 있으면
+    // 함께 사용합니다. 규칙을 계속 늘려갈 곳은 그 파일입니다.
+    const externalRules =
+      (typeof window !== 'undefined' && window.DADEUM_RULES) ? window.DADEUM_RULES : [];
+
     const allRules = [
       ...this.spacingRules,
       ...this.spellingRules,
       ...this.vocabRules,
-      ...this.contextRules
-    ];
+      ...this.contextRules,
+      ...externalRules
+    ].map(normalizeRule);
 
     allRules.forEach(rule => {
       let match;
@@ -435,6 +497,13 @@ class DadeumCheckerEngine {
       rule.pattern.lastIndex = 0;
 
       while ((match = rule.pattern.exec(text)) !== null) {
+        // 폭이 0인 매치가 나오면 lastIndex가 전진하지 않아 무한 루프에 빠집니다.
+        // (경계 조건만으로 이루어진 패턴에서 실제로 발생했습니다.)
+        if (match[0] === '') {
+          rule.pattern.lastIndex++;
+          continue;
+        }
+
         const matchedText = match[0];
         const startPos = match.index;
         const endPos = startPos + matchedText.length;
@@ -447,14 +516,31 @@ class DadeumCheckerEngine {
         if (isCustomExcluded) continue;
 
         // Calculate replacement text
+        //
+        // ⚠️ String.replace()에 g 플래그 정규식을 넘기면 호출이 끝난 뒤
+        //    그 정규식의 lastIndex가 0으로 초기화됩니다. 아래 while(exec)
+        //    루프는 lastIndex로 위치를 추적하므로, 그대로 두면 매번 문서
+        //    처음으로 되돌아가 무한 루프가 됩니다.
+        //    (규칙이 \b 때문에 한 번도 매칭되지 않던 동안 드러나지 않았던
+        //     잠복 버그입니다.) 위치를 저장했다가 복원합니다.
+        const savedLastIndex = rule.pattern.lastIndex;
+
         let replacementText = '';
         if (typeof rule.replacement === 'function') {
           replacementText = rule.replacement(matchedText);
         } else if (typeof rule.replacement === 'string') {
-          replacementText = matchedText.replace(rule.pattern, rule.replacement);
+          // $1 같은 역참조가 있을 때만 다시 매칭시킵니다.
+          // 전후방 탐색(lookaround)을 쓰는 패턴은 잘라낸 matchedText만으로는
+          // 다시 매칭되지 않아, 무조건 replace를 돌리면 교정이 사라집니다.
+          // (예: /되(?=[.!?])/ 에 matchedText "되"만 넣으면 매칭 실패)
+          replacementText = rule.replacement.includes('$')
+            ? matchedText.replace(rule.pattern, rule.replacement)
+            : rule.replacement;
         } else if (rule.check) {
           replacementText = rule.check(matchedText, match[1], match[2]);
         }
+
+        rule.pattern.lastIndex = savedLastIndex;
 
         if (!replacementText || replacementText === matchedText) continue;
 
