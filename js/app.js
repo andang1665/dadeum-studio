@@ -92,23 +92,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // server explicitly. server.js sends CORS headers so this works too.
   const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3787' : '';
 
-  // 국어사전 전용 주소.
-  //
-  // 국립국어원 API는 CORS를 허용하지 않고, 인증키도 숨겨야 하므로 중계 서버가
-  // 필요합니다. 그런데 배포처인 GitHub Pages는 정적 파일만 제공해 서버를 돌릴
-  // 수 없어, 사전만 Cloudflare Worker로 분리했습니다.
-  //
-  // 로컬(localhost/file:)에서는 server.js가 같은 일을 하므로 그대로 씁니다.
-  // ▶ Worker 배포 후 아래 주소를 발급받은 값으로 바꾸세요.
-  //   (worker/dictionary-worker.js 파일 상단에 배포 방법이 적혀 있습니다)
-  const DICT_WORKER_URL = 'https://dadeum-dictionary.workers.dev';
-
   const isLocal =
     window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1';
 
-  const DICT_API = isLocal ? `${API_BASE}/api/dictionary` : DICT_WORKER_URL;
+  // 국어사전 주소.
+  //
+  // 배포 환경(Vercel)과 로컬(server.js) 모두 같은 경로로 사전을 제공하므로
+  // 주소가 하나로 통일됩니다. 사이트와 같은 도메인이라 CORS 문제도 없습니다.
+  // (인증키는 서버 쪽 환경 변수에만 있고 브라우저로 내려오지 않습니다.)
+  const DICT_API = `${API_BASE}/api/dictionary`;
+
+  // 맞춤법 검사는 브라우저의 규칙 엔진(checker-engine.js)이 담당합니다.
+  // 로컬에서만 server.js의 외부 검사 API를 추가로 시도합니다. 배포 환경에는
+  // 그 API가 없으므로, 매번 404를 받으러 가지 않도록 아예 건너뜁니다.
+  const SPELLCHECK_API_ENABLED = isLocal;
+
   let apiEngineAvailable = false;
   checkApiAvailability();
 
@@ -134,6 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
 
   async function checkApiAvailability() {
+    if (!SPELLCHECK_API_ENABLED) {
+      apiEngineAvailable = false;
+      updateEngineStatusUI();
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/api/spellcheck`, {
         method: 'POST',
@@ -149,6 +154,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateEngineStatusUI() {
     if (!engineStatus) return;
+
+    // 배포된 사이트에서는 규칙 엔진이 정상 동작하는 상태이므로 "서버 미실행"
+    // 같은 개발용 경고를 띄우면 안 됩니다. 그건 로컬에서만 의미가 있습니다.
+    if (!SPELLCHECK_API_ENABLED) {
+      engineStatus.textContent = '🟢 규칙 기반 검사';
+      engineStatus.title =
+        '한글 맞춤법 규정에 근거한 내장 규칙으로 검사합니다. 왜 틀렸는지 근거 조항까지 보여 줍니다.';
+      updateSetupBanner();
+      return;
+    }
+
     engineStatus.textContent = apiEngineAvailable ? '🟢 정밀 API 검사 연결됨' : '⚪ 로컬 규칙 검사 (서버 미실행)';
     engineStatus.title = apiEngineAvailable
       ? '맞춤법 검사 API에 연결되었습니다.'
@@ -166,7 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const banner = document.getElementById('setupBanner');
     if (!banner) return;
 
-    if (apiEngineAvailable || banner.dataset.dismissed === 'true') {
+    // 배포 환경에는 안내할 "실행 방법"이 없습니다. 이 배너는 사용자가 폴더에서
+    // index.html을 직접 열었을 때를 위한 것이라 로컬에서만 띄웁니다.
+    if (!SPELLCHECK_API_ENABLED || apiEngineAvailable || banner.dataset.dismissed === 'true') {
       banner.style.display = 'none';
       return;
     }
@@ -199,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function checkViaApi(text) {
+    if (!SPELLCHECK_API_ENABLED) throw new Error('로컬 규칙 엔진을 사용합니다.');
     const res = await fetch(`${API_BASE}/api/spellcheck`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

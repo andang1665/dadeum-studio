@@ -1312,6 +1312,32 @@ body {
   font-size: 0.9rem;
 }
 
+/* ==========================================================================
+   모바일 대응
+   ==========================================================================
+   휴대폰에서 화면이 잘려 보이던 원인은 헤더였습니다.
+   .header-container 와 .header-actions 가 flex 인데 flex-wrap 이 없어서,
+   오른쪽 버튼 5개(상태표시 + 국어사전 + 사용자 사전 + 파일 불러오기 + 테마)가
+   한 줄에 억지로 늘어섰습니다. 그 줄의 너비(700px 이상)가 페이지 전체 너비를
+   밀어내면서, 390px 화면에서는 오른쪽이 화면 밖으로 나가 잘려 보였습니다.
+
+   가로 스크롤은 모바일에서 "고장난 사이트"로 보이므로, 아래에서
+   (1) 넘칠 수 있는 flex 줄을 전부 접히게 하고
+   (2) html/body 에 가로 넘침 차단을 걸어 재발을 막습니다.
+   ========================================================================== */
+
+/* 어떤 요소가 삐져나와도 페이지 자체가 옆으로 밀리지 않도록 하는 안전장치 */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 @media (max-width: 768px) {
   .seo-content {
     padding: 0 16px 20px;
@@ -1319,6 +1345,143 @@ body {
   .doc-page {
     margin: 16px;
     padding: 24px 20px;
+  }
+
+  /* --- 헤더: 두 줄로 접기 --- */
+  .app-header {
+    padding: 10px 14px;
+  }
+  .header-container {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-brand {
+    gap: 10px;
+  }
+  .brand-logo {
+    height: 36px;
+  }
+  .brand-name {
+    font-size: 1rem;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  .header-actions .btn-icon-text {
+    flex: 1 1 auto;
+    justify-content: center;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  /* 검사 엔진 상태는 개발용 표시라 좁은 화면에서는 자리만 차지합니다. */
+  .engine-status {
+    display: none;
+  }
+
+  /* --- 본문 --- */
+  .main-container {
+    margin: 14px auto;
+    padding: 0 12px;
+    gap: 14px;
+  }
+
+  /* --- 상단 툴바: 세로로 쌓기 --- */
+  .control-toolbar {
+    padding: 12px;
+    gap: 10px;
+  }
+  .toolbar-left,
+  .toolbar-right {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+  }
+  .toolbar-right .btn-primary,
+  .toolbar-right .btn-secondary {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .tone-selector-wrap {
+    flex-wrap: wrap;
+  }
+  .tone-select {
+    max-width: 100%;
+  }
+
+  /* --- 작업 영역 ---
+     데스크톱의 min-height 680px 를 그대로 두면 원문·결과 두 패널이
+     세로로 쌓이면서 화면이 1400px 넘게 길어집니다. */
+  .workspace-grid {
+    gap: 14px;
+    min-height: 0;
+  }
+  .card-panel {
+    min-height: 0;
+  }
+  .editor-textarea {
+    min-height: 220px;
+    font-size: 16px; /* iOS 는 16px 미만 입력창에 자동 확대가 걸립니다 */
+  }
+
+  /* --- 글자 수 통계: 줄바꿈 허용 --- */
+  .text-stats {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .stat-item {
+    font-size: 0.75rem;
+  }
+  .error-summary-bar {
+    flex-wrap: wrap;
+  }
+
+  /* --- 모달: 화면 밖으로 나가지 않게 --- */
+  .modal-card {
+    width: calc(100% - 24px);
+    max-width: none;
+    margin: 0 12px;
+    max-height: 85vh;
+  }
+  .modal-body {
+    overflow-y: auto;
+  }
+
+  /* --- 푸터 --- */
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+  }
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  /* --- 안내 배너 --- */
+  .setup-banner {
+    padding: 12px 14px;
+    font-size: 0.82rem;
+  }
+}
+
+/* 아주 좁은 화면(iPhone SE 등 375px 이하) */
+@media (max-width: 400px) {
+  .brand-badge {
+    display: none; /* 로고 옆 부제까지 넣으면 제목이 두 줄로 깨집니다 */
+  }
+  .header-actions .btn-icon-text {
+    font-size: 0.75rem;
+    padding: 7px 8px;
+  }
+  .mode-select-group {
+    width: 100%;
+  }
+  .mode-btn {
+    flex: 1;
   }
 }
 
