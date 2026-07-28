@@ -67,6 +67,30 @@ function stripJosa(word) {
 }
 
 /**
+ * 사전에서 찾아볼 후보를 짧아지는 순서로 만듭니다.
+ *
+ *   팀원들과 → 팀원들 → 팀원
+ *   사과를   → 사과
+ *
+ * '들'은 조사가 아니라 복수 접미사라 조사를 뗀 뒤에 한 번 더 떼야 합니다.
+ * 표제어는 '팀원'이지 '팀원들'이 아니기 때문입니다.
+ */
+function lookupCandidates(word) {
+  const list = [word];
+
+  const noJosa = stripJosa(word);
+  if (noJosa) list.push(noJosa);
+
+  for (const candidate of [...list]) {
+    if (candidate.length > 2 && candidate.endsWith('들')) {
+      list.push(candidate.slice(0, -1));
+    }
+  }
+
+  return [...new Set(list)];
+}
+
+/**
  * 응답 본문(JSON 문자열)에서 뜻풀이를 뽑아냅니다.
  * 두 사전의 응답 구조가 같아 함수 하나로 처리됩니다.
  */
@@ -143,23 +167,24 @@ module.exports = async function handler(req, res) {
   async function lookUp(base, key) {
     if (!key) return null;
 
-    let raw = await fetchRaw(base, key, query);
-    let matchedWord = query;
-
-    if (!raw.trim()) {
-      const stem = stripJosa(query);
-      if (stem) {
-        const stemRaw = await fetchRaw(base, key, stem);
-        if (stemRaw.trim()) {
-          raw = stemRaw;
-          matchedWord = stem;
-        }
-      }
+    // 재시도 여부는 "본문이 비었는가"가 아니라 "뜻풀이를 얻었는가"로 판단해야
+    // 합니다. 두 사전이 '결과 없음'을 표현하는 방식이 다르기 때문입니다.
+    //   표준국어대사전 : 본문 0바이트
+    //   우리말샘       : 정상 JSON인데 item 이 없음
+    // 빈 본문만 보고 판단하면 우리말샘에서는 조사 분리 재시도가 아예 돌지
+    // 않아 '컴퓨터공학을' 같은 검색이 실패합니다.
+    async function attempt(word) {
+      const raw = await fetchRaw(base, key, word);
+      if (!raw.trim()) return null;
+      const parsed = parseEntries(raw);
+      return parsed ? { ...parsed, matchedWord: word } : null;
     }
 
-    if (!raw.trim()) return null;
-    const parsed = parseEntries(raw);
-    return parsed ? { ...parsed, matchedWord } : null;
+    for (const candidate of lookupCandidates(query)) {
+      const found = await attempt(candidate);
+      if (found) return found;
+    }
+    return null;
   }
 
   // ① 규범 사전 → ② 개방형 사전 순으로 찾습니다.
