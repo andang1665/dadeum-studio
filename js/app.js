@@ -29,7 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
   /** Write back to whichever source the result panel is working on. */
   function setTargetText(value) {
     if (toneText !== null) toneText = value;
-    else inputTextarea.value = value;
+    else {
+      inputTextarea.value = value;
+      // 교정을 적용해 원문이 바뀌었을 때도 저장본을 갱신합니다.
+      scheduleDraftSave();
+    }
   }
 
   /** Drop any active tone conversion (called whenever the 원문 changes). */
@@ -141,9 +145,104 @@ document.addEventListener('DOMContentLoaded', () => {
   let apiEngineAvailable = false;
   checkApiAvailability();
 
-  // Start with a blank workspace (no sample text) — both the input and the
-  // result panel should be empty until the user types or loads a file.
+  // ==========================================
+  // 자동 저장 (LocalStorage)
+  //
+  // 실수로 새로고침하거나 창을 닫아도 쓰던 글이 날아가지 않도록, 입력한 글을
+  // 이 브라우저에만 보관합니다. 서버로 보내지 않으므로 글 내용은 다른 곳으로
+  // 나가지 않습니다.
+  //
+  // 저장은 타자를 멈춘 뒤에 합니다. 글자 하나마다 저장하면 긴 글에서
+  // 입력이 버벅입니다.
+  // ==========================================
+  const DRAFT_KEY = 'dadeum_draft';
+  const DRAFT_SAVED_AT_KEY = 'dadeum_draft_saved_at';
+  let draftTimer = null;
+
+  function saveDraft() {
+    try {
+      const text = inputTextarea.value;
+      if (!text) {
+        localStorage.removeItem(DRAFT_KEY);
+        localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY, text);
+      localStorage.setItem(DRAFT_SAVED_AT_KEY, String(Date.now()));
+    } catch (e) {
+      // 시크릿 모드이거나 저장 공간이 가득 찬 경우입니다. 자동 저장은
+      // 부가 기능이므로, 실패해도 검사기 본체는 그대로 동작해야 합니다.
+    }
+  }
+
+  function scheduleDraftSave() {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraft, 800);
+  }
+
+  function clearDraft() {
+    clearTimeout(draftTimer);
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+    } catch (e) {
+      /* 위와 같은 이유로 무시합니다. */
+    }
+  }
+
+  /** 저장 시각을 '방금 전', '3분 전'처럼 읽기 쉽게 바꿉니다. */
+  function formatSavedAgo(timestamp) {
+    const diffMin = Math.floor((Date.now() - timestamp) / 60000);
+    if (diffMin < 1) return '방금 전';
+    if (diffMin < 60) return `${diffMin}분 전`;
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour}시간 전`;
+    return `${Math.floor(diffHour / 24)}일 전`;
+  }
+
+  /**
+   * 저장해 둔 글을 되살립니다.
+   *
+   * 사용자가 모르는 사이에 글이 나타나면 당황스러우므로, 복구했다는 사실과
+   * 되돌리는 방법(작성 취소)을 함께 알려 줍니다.
+   */
+  function restoreDraft() {
+    let saved = null;
+    let savedAt = null;
+    try {
+      saved = localStorage.getItem(DRAFT_KEY);
+      savedAt = Number(localStorage.getItem(DRAFT_SAVED_AT_KEY)) || null;
+    } catch (e) {
+      return;
+    }
+    if (!saved) return;
+
+    inputTextarea.value = saved;
+
+    const banner = document.getElementById('setupBanner');
+    if (!banner || !supportsLookbehind) return;
+
+    const title = document.getElementById('setupBannerTitle');
+    const text = document.getElementById('setupBannerText');
+    if (title) title.textContent = '작성 중이던 글을 불러왔습니다.';
+    if (text) {
+      text.textContent =
+        (savedAt ? ` ${formatSavedAgo(savedAt)}에 ` : ' 이전에 ') +
+        '자동 저장된 내용입니다. 새로 쓰시려면 "지우기" 버튼을 눌러 주세요.';
+    }
+    banner.style.display = 'flex';
+  }
+
+  // 처음에는 빈 작업 공간으로 시작하고, 저장해 둔 글이 있으면 되살립니다.
   inputTextarea.value = '';
+  restoreDraft();
+
+  // 타자를 멈추길 기다리지 않고 즉시 저장해야 하는 순간들입니다.
+  // (탭을 닫거나, 다른 앱으로 전환하거나, 휴대폰에서 화면을 끌 때)
+  window.addEventListener('beforeunload', saveDraft);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveDraft();
+  });
 
   // Initial Run
   updateStats();
@@ -271,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // automatically — never applied — so nothing is silently rewritten.
   inputTextarea.addEventListener('input', () => {
     updateStats();
+    scheduleDraftSave();
     currentIssues = [];
     // Editing the 원문 invalidates any active tone conversion.
     clearToneConversion();
@@ -353,9 +453,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Clear Text Button
   btnClearText.addEventListener('click', () => {
     inputTextarea.value = '';
+    // "지우기"는 사용자가 명시적으로 비운 것이므로 저장본도 함께 지웁니다.
+    // 남겨 두면 새로고침했을 때 지운 글이 되살아나 버립니다.
+    clearDraft();
     clearToneConversion();
     updateStats();
     runSpellingCheck();
+    const banner = document.getElementById('setupBanner');
+    if (banner) banner.style.display = 'none';
   });
 
   // Copy Original Text
@@ -417,6 +522,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       inputTextarea.value = text;
+      // 불러온 파일 내용도 자동 저장 대상입니다. input 이벤트가 발생하지 않는
+      // 경로라 여기서 직접 저장해 줘야 합니다.
+      saveDraft();
       clearToneConversion();
       updateStats();
       await runSpellingCheck();
