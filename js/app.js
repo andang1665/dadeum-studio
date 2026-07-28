@@ -689,6 +689,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (source === 'opendict') {
       return '출처: 국립국어원 우리말샘 (개방형 한국어 지식 대사전) · 표준국어대사전에는 실려 있지 않은 말입니다';
     }
+    if (source === 'term') {
+      return '출처: 국립국어원 온용어 (전문용어) · 특정 분야에서 쓰이는 말이라 일반 사전에는 실려 있지 않습니다';
+    }
     return '출처: 국립국어원 표준국어대사전';
   }
 
