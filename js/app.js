@@ -159,19 +159,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const DRAFT_SAVED_AT_KEY = 'dadeum_draft_saved_at';
   let draftTimer = null;
 
+  const saveStatus = document.getElementById('saveStatus');
+
+  /**
+   * 자동 저장 상태를 표시합니다.
+   *
+   * 저장이 막혔는데 아무 표시가 없으면, 사용자는 저장된 줄 알고 있다가
+   * 글을 잃습니다. 자동 저장은 "될 때는 조용히, 안 될 때는 분명히"
+   * 알려야 합니다.
+   */
+  function showSaveStatus(state, message) {
+    if (!saveStatus) return;
+    saveStatus.textContent = message;
+    saveStatus.className = 'stat-item save-status' + (state ? ` is-${state}` : '');
+    saveStatus.title =
+      state === 'error'
+        ? '이 글은 브라우저에 보관되지 않습니다. 창을 닫기 전에 내용을 복사해 두세요.'
+        : '작성 중인 글은 이 브라우저에만 보관되며 서버로 전송되지 않습니다.';
+  }
+
+  /** 저장 실패 안내는 한 번만 띄웁니다. 타자마다 반복하면 방해가 됩니다. */
+  let saveErrorNotified = false;
+
   function saveDraft() {
+    const text = inputTextarea.value;
     try {
-      const text = inputTextarea.value;
       if (!text) {
         localStorage.removeItem(DRAFT_KEY);
         localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+        showSaveStatus('', '');
         return;
       }
       localStorage.setItem(DRAFT_KEY, text);
       localStorage.setItem(DRAFT_SAVED_AT_KEY, String(Date.now()));
+      saveErrorNotified = false;
+      showSaveStatus('ok', '자동 저장됨');
     } catch (e) {
-      // 시크릿 모드이거나 저장 공간이 가득 찬 경우입니다. 자동 저장은
-      // 부가 기능이므로, 실패해도 검사기 본체는 그대로 동작해야 합니다.
+      // 자동 저장은 부가 기능이라, 실패해도 검사기 본체는 그대로 동작해야
+      // 합니다. 다만 조용히 넘어가면 안 됩니다.
+      //
+      // 원인이 둘이고 사용자가 할 수 있는 일이 서로 다릅니다.
+      //   용량 초과   → 글이 길다. 나눠 쓰거나 복사해 두면 됨
+      //   저장 불가   → 시크릿 모드/저장 차단. 설정을 바꿔야 함
+      const quotaExceeded =
+        e && (e.name === 'QuotaExceededError' ||
+              e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+              e.code === 22 || e.code === 1014);
+
+      showSaveStatus('error', quotaExceeded ? '⚠ 저장 공간 부족' : '⚠ 자동 저장 불가');
+
+      if (!saveErrorNotified) {
+        saveErrorNotified = true;
+        showToast(
+          quotaExceeded
+            ? '글이 너무 길어 자동 저장이 중단되었습니다. 창을 닫기 전에 내용을 복사해 주세요.'
+            : '이 브라우저에서는 자동 저장을 쓸 수 없습니다(시크릿 모드 등). 내용을 따로 보관해 주세요.'
+        );
+      }
     }
   }
 
@@ -182,12 +226,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearDraft() {
     clearTimeout(draftTimer);
+    saveErrorNotified = false;
     try {
       localStorage.removeItem(DRAFT_KEY);
       localStorage.removeItem(DRAFT_SAVED_AT_KEY);
     } catch (e) {
       /* 위와 같은 이유로 무시합니다. */
     }
+    showSaveStatus('', '');
   }
 
   /** 저장 시각을 '방금 전', '3분 전'처럼 읽기 쉽게 바꿉니다. */
