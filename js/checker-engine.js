@@ -517,30 +517,25 @@ class DadeumCheckerEngine {
 
         // Calculate replacement text
         //
-        // ⚠️ String.replace()에 g 플래그 정규식을 넘기면 호출이 끝난 뒤
-        //    그 정규식의 lastIndex가 0으로 초기화됩니다. 아래 while(exec)
-        //    루프는 lastIndex로 위치를 추적하므로, 그대로 두면 매번 문서
-        //    처음으로 되돌아가 무한 루프가 됩니다.
-        //    (규칙이 \b 때문에 한 번도 매칭되지 않던 동안 드러나지 않았던
-        //     잠복 버그입니다.) 위치를 저장했다가 복원합니다.
-        const savedLastIndex = rule.pattern.lastIndex;
-
+        // $1, $2 … 역참조는 이미 손에 쥔 match 배열로 직접 치환합니다.
+        // 잘라낸 matchedText에 패턴을 다시 돌리는 방식은 두 가지로 깨집니다.
+        //   1) 전후방 탐색(lookaround)이 있는 패턴은 문맥이 잘려 나가 재매칭에
+        //      실패합니다. 그러면 replacementText가 원문과 같아져 교정이
+        //      조용히 사라집니다. (예: /(할)수(?=\s*있)/ 에 "할수"만 넣으면 실패)
+        //   2) g 플래그 정규식을 String.replace()에 넘기면 lastIndex가 0으로
+        //      초기화되어 아래 while(exec) 루프가 무한 루프에 빠집니다.
+        // match 배열을 쓰면 두 문제가 함께 사라집니다.
         let replacementText = '';
         if (typeof rule.replacement === 'function') {
           replacementText = rule.replacement(matchedText);
         } else if (typeof rule.replacement === 'string') {
-          // $1 같은 역참조가 있을 때만 다시 매칭시킵니다.
-          // 전후방 탐색(lookaround)을 쓰는 패턴은 잘라낸 matchedText만으로는
-          // 다시 매칭되지 않아, 무조건 replace를 돌리면 교정이 사라집니다.
-          // (예: /되(?=[.!?])/ 에 matchedText "되"만 넣으면 매칭 실패)
-          replacementText = rule.replacement.includes('$')
-            ? matchedText.replace(rule.pattern, rule.replacement)
-            : rule.replacement;
+          replacementText = rule.replacement.replace(/\$(\d)/g, (token, n) => {
+            const group = match[Number(n)];
+            return group === undefined ? token : group;
+          });
         } else if (rule.check) {
           replacementText = rule.check(matchedText, match[1], match[2]);
         }
-
-        rule.pattern.lastIndex = savedLastIndex;
 
         if (!replacementText || replacementText === matchedText) continue;
 
