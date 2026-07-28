@@ -678,6 +678,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * 어느 사전에서 온 뜻풀이인지 밝힙니다.
+   *
+   * 우리말샘은 이용자가 직접 등록한 뜻풀이도 담고 있어 표준국어대사전만큼의
+   * 규범성은 없습니다. 그래서 "표준어다"라고 오해하지 않도록 출처를 구분해
+   * 보여 줍니다.
+   */
+  function sourceLabel(source) {
+    if (source === 'opendict') {
+      return '출처: 국립국어원 우리말샘 (개방형 한국어 지식 대사전) · 표준국어대사전에는 실려 있지 않은 말입니다';
+    }
+    return '출처: 국립국어원 표준국어대사전';
+  }
+
   function renderKoDictResult(data) {
     const defsHTML = data.definitions
       .map((def, i) => `<li><span class="def-index">${i + 1}.</span><span>${escapeHTML(def)}</span></li>`)
@@ -692,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${data.pronunciation ? `<span class="ko-dict-pron">${escapeHTML(data.pronunciation)}</span>` : ''}
         </div>
         <ul class="ko-dict-defs">${defsHTML}</ul>
-        <div class="ko-dict-source">출처: 국립국어원 표준국어대사전</div>
+        <div class="ko-dict-source">${sourceLabel(data.source)}</div>
       </div>
     `;
   }
