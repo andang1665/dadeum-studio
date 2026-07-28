@@ -91,6 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // is no origin to resolve "/api/..." against, so we point at the local
   // server explicitly. server.js sends CORS headers so this works too.
   const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3787' : '';
+
+  // 국어사전 전용 주소.
+  //
+  // 국립국어원 API는 CORS를 허용하지 않고, 인증키도 숨겨야 하므로 중계 서버가
+  // 필요합니다. 그런데 배포처인 GitHub Pages는 정적 파일만 제공해 서버를 돌릴
+  // 수 없어, 사전만 Cloudflare Worker로 분리했습니다.
+  //
+  // 로컬(localhost/file:)에서는 server.js가 같은 일을 하므로 그대로 씁니다.
+  // ▶ Worker 배포 후 아래 주소를 발급받은 값으로 바꾸세요.
+  //   (worker/dictionary-worker.js 파일 상단에 배포 방법이 적혀 있습니다)
+  const DICT_WORKER_URL = 'https://dadeum-dictionary.workers.dev';
+
+  const isLocal =
+    window.location.protocol === 'file:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+  const DICT_API = isLocal ? `${API_BASE}/api/dictionary` : DICT_WORKER_URL;
   let apiEngineAvailable = false;
   checkApiAvailability();
 
@@ -457,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
     koDictResult.innerHTML = `<div class="ko-dict-empty">'${escapeHTML(query)}' 검색 중...</div>`;
 
     try {
-      const res = await fetch(`${API_BASE}/api/dictionary?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`${DICT_API}?q=${encodeURIComponent(query)}`);
       if (res.status === 404) {
         koDictResult.innerHTML = `<div class="ko-dict-empty">'${escapeHTML(query)}'에 대한 검색 결과가 없습니다.</div>`;
         return;

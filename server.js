@@ -228,14 +228,21 @@ async function lookupDictionary(query) {
     throw err;
   }
 
+  // ⚠️ sort 는 'dict'(사전순)만 유효합니다. 'popular' 같은 값을 넣으면
+  //    오류가 아니라 HTTP 200에 빈 본문이 돌아와 원인을 찾기 어렵습니다.
   const url =
     `${STDICT_API_URL}?key=${encodeURIComponent(STDICT_KEY)}` +
-    `&q=${encodeURIComponent(query)}&req_type=json&num=10&sort=popular`;
+    `&q=${encodeURIComponent(query)}&req_type=json&num=10&sort=dict`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`표준국어대사전 API 응답 오류 (${res.status})`);
 
   const raw = await res.text();
+
+  // 검색 결과가 없으면 이 API는 오류가 아니라 HTTP 200 + 빈 본문을 반환합니다.
+  // 그대로 JSON.parse 하면 예외가 나 502로 잘못 보고되므로 먼저 걸러냅니다.
+  if (!raw.trim()) return null;
+
   let data;
   try {
     data = JSON.parse(raw);
