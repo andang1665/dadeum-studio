@@ -1,0 +1,20 @@
+# Vercel에 올리지 않을 파일
+#
+# server.js는 "내 컴퓨터에서 열어 보기" 전용 개발 서버입니다.
+# 배포 환경에서는 정적 파일을 Vercel이 직접 서빙하고, 사전 API는
+# api/dictionary.js 서버리스 함수가 담당하므로 server.js는 쓰이지 않습니다.
+# 올라가 있으면 Vercel이 이 파일을 잡아 쓰려다 엉뚱한 404를 낼 수 있어
+# 아예 제외합니다.
+server.js
+
+# 개발·문서용 파일 (웹사이트가 아님)
+test/
+*.bat
+*.md
+API_연동_안내.txt
+
+# 어디에도 쓰이지 않는 이미지 (157KB)
+마우스커서.png
+
+# GitHub Pages 전용 파일이라 Vercel에서는 의미가 없습니다.
+CNAME
