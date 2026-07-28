@@ -529,9 +529,12 @@ class DadeumCheckerEngine {
         if (typeof rule.replacement === 'function') {
           replacementText = rule.replacement(matchedText);
         } else if (typeof rule.replacement === 'string') {
+          // 매칭에 참여하지 않은 선택 그룹(예: 조사가 없는 경우의 (을|를)?)은
+          // 빈 문자열로 바꿉니다. String.replace()와 같은 동작입니다.
+          // 이걸 안 하면 교정문에 "$1"이 글자 그대로 남습니다.
           replacementText = rule.replacement.replace(/\$(\d)/g, (token, n) => {
             const group = match[Number(n)];
-            return group === undefined ? token : group;
+            return group === undefined ? '' : group;
           });
         } else if (rule.check) {
           replacementText = rule.check(matchedText, match[1], match[2]);
