@@ -1,5 +1,4 @@
-# 다듬 스튜디오 robots.txt
-# ※ 배포 후 아래 YOUR-DOMAIN.com 을 실제 도메인으로 반드시 바꿔주세요.
+﻿# 다듬 스튜디오 robots.txt
 
 User-agent: *
 Allow: /
@@ -14,4 +13,4 @@ Allow: /
 User-agent: AdsBot-Google
 Allow: /
 
-Sitemap: https://YOUR-DOMAIN.com/sitemap.xml
+Sitemap: https://dadeum.ai.kr/sitemap.xml

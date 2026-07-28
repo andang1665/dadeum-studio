@@ -1,39 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
   다듬 스튜디오 사이트맵
-  ※ 배포 후 YOUR-DOMAIN.com 을 실제 도메인으로 모두 바꿔주세요.
   ※ 가이드 글(/guide/...)을 추가할 때마다 여기에 <url> 항목을 추가하면
      구글이 새 글을 훨씬 빨리 색인합니다.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/</loc>
+    <loc>https://dadeum.ai.kr/</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://YOUR-DOMAIN.com/about.html</loc>
+    <loc>https://dadeum.ai.kr/about.html</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://YOUR-DOMAIN.com/privacy.html</loc>
+    <loc>https://dadeum.ai.kr/privacy.html</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://YOUR-DOMAIN.com/terms.html</loc>
+    <loc>https://dadeum.ai.kr/terms.html</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://YOUR-DOMAIN.com/contact.html</loc>
+    <loc>https://dadeum.ai.kr/contact.html</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
