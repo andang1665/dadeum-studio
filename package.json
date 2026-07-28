@@ -1,0 +1,22 @@
+{
+  "name": "dadeum-studio",
+  "version": "1.0.0",
+  "description": "다듬 스튜디오 — 한국어 맞춤법·띄어쓰기 검사기 및 어조 변환 도구",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "korean",
+    "spellcheck",
+    "grammar",
+    "맞춤법검사기",
+    "띄어쓰기"
+  ],
+  "license": "UNLICENSED"
+}

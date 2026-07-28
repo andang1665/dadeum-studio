@@ -1,0 +1,26 @@
+# 로그
+*.log
+logs/
+
+# 환경변수 (API 키 — 절대 커밋 금지)
+.env
+.env.*
+!.env.example
+
+# 의존성
+node_modules/
+
+# OS / 에디터
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# 이 컴퓨터에만 적용되는 로컬 설정 (공유 대상 아님)
+.claude/settings.local.json
+
+# 빌드/임시
+dist/
+tmp/
+*.tmp

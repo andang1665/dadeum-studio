@@ -1,0 +1,17 @@
+# 다듬 스튜디오 robots.txt
+# ※ 배포 후 아래 YOUR-DOMAIN.com 을 실제 도메인으로 반드시 바꿔주세요.
+
+User-agent: *
+Allow: /
+
+# API 엔드포인트는 색인할 내용이 없으므로 크롤링에서 제외합니다.
+Disallow: /api/
+
+# 구글 애드센스 크롤러 (광고 관련성 판단에 사용 — 반드시 허용해야 함)
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+Sitemap: https://YOUR-DOMAIN.com/sitemap.xml

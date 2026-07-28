@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(start \"\" \"c:/Users/andan/OneDrive/바탕 화면/레시피2/index.html\")",
+      "Bash(npm -v)",
+      "Bash(python -c \"import PIL; print\\(PIL.__version__\\)\")",
+      "Bash(python3 -)",
+      "Bash(python \"C:\\\\Users\\\\andan\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-andan-OneDrive----------2\\\\b02c6d5d-05eb-4b0b-af5d-d9127566e6fa\\\\scratchpad\\\\dechroma_logo.py\")",
+      "Bash(curl -s -X POST \"https://speller.cs.pusan.ac.kr/results\" --data-urlencode \"text1=안녕하세요 저는 학교에 갑니다 그리고 몇일동안 집에서 쉬었습니다\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -sv -X POST \"https://speller.cs.pusan.ac.kr/results\" --data-urlencode \"text1=test\" -H \"User-Agent: Mozilla/5.0\" -o /tmp/out.html --max-time 10)",
+      "Bash(echo \"EXIT:$?\")",
+      "Read(//tmp/**)",
+      "Bash(curl -sv \"https://www.google.com\" --max-time 8 -o /dev/null)",
+      "Bash(nslookup speller.cs.pusan.ac.kr)",
+      "Bash(nslookup speller.cs.pusan.ac.kr 8.8.8.8)",
+      "Bash(nslookup alldic.daum.net)",
+      "Bash(nslookup dic.daum.net)",
+      "Bash(nslookup nara-speller.co.kr)",
+      "Bash(curl -s \"https://alldic.daum.net/grammar_checker.do?callback=jsonp&q=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%20%EB%AA%87%EC%9D%BC%EB%8F%99%EC%95%88%20%EC%A7%91%EC%97%90%EC%84%9C%20%EC%89%AC%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4\" -H \"User-Agent: Mozilla/5.0\" --max-time 10)",
+      "Bash(curl -s \"https://alldic.daum.net/grammar_checker.do\" -H \"User-Agent: Mozilla/5.0\" --max-time 10 -o /tmp/daum.html)",
+      "Bash(curl -s \"https://t1.daumcdn.net/language/cssjs/webservice/620a97d/js/language.grammarChecker.js\" -H \"User-Agent: Mozilla/5.0\" --max-time 10 -o /tmp/gc.js)",
+      "Bash(grep -n \"grammar_checker\" /tmp/gc.js)",
+      "Bash(grep -n \"btnCheck\\\\|submit\\\\|resultForm\\\\|cont_spell\" /tmp/gc.js | head -5)",
+      "Bash(curl -s \"https://alldic.daum.net/grammar_checker.do\" -X POST --data-urlencode \"sentence=안녕하세요 저는 학교에 갑니다 그리고 몇일동안 집에서 어떻해 지낼지 몰라요\" -H \"User-Agent: Mozilla/5.0\" -H \"Content-Type: application/x-www-form-urlencoded\" --max-time 15 -o /tmp/daum_result.html)",
+      "Bash(sed -n '160,230p' /tmp/daum_result.html)",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

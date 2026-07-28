@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ==========================================================================
+     SEO 기본 태그
+     ※ 배포 후 아래 "https://YOUR-DOMAIN.com" 을 실제 도메인으로 모두
+       바꿔주세요. (canonical / og:url / og:image / JSON-LD 총 5곳)
+     ========================================================================== -->
+<title>맞춤법 검사기 | 다듬 스튜디오 - 무료 한국어 맞춤법·띄어쓰기 검사</title>
+<meta name="description" content="무료 한국어 맞춤법 검사기. 띄어쓰기·맞춤법을 실시간으로 잡아주고, 격식체·해요체·개조식으로 어조까지 바꿔드립니다. 자기소개서, 보고서, 논문에 바로 활용하세요. 설치 없이 웹에서 바로 사용.">
+<meta name="author" content="다듬 스튜디오">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://YOUR-DOMAIN.com/">
+<meta name="theme-color" content="#4b6bfb">
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="apple-touch-icon" href="logo.png">
+
+<!-- 카카오톡·페이스북 등에서 링크 공유 시 노출되는 미리보기 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="다듬 스튜디오">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="맞춤법 검사기 | 다듬 스튜디오">
+<meta property="og:description" content="맞춤법·띄어쓰기를 실시간으로 검사하고 어조까지 바꿔주는 무료 한국어 교정 도구.">
+<meta property="og:url" content="https://YOUR-DOMAIN.com/">
+<meta property="og:image" content="https://YOUR-DOMAIN.com/logo.png">
+<meta property="og:image:alt" content="다듬 스튜디오 로고">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="맞춤법 검사기 | 다듬 스튜디오">
+<meta name="twitter:description" content="맞춤법·띄어쓰기를 실시간으로 검사하고 어조까지 바꿔주는 무료 한국어 교정 도구.">
+<meta name="twitter:image" content="https://YOUR-DOMAIN.com/logo.png">
+
+<link rel="stylesheet" href="index.css">
+
+<!-- 구조화 데이터: 구글이 "이 사이트는 무료 웹 도구"라고 이해하게 해줍니다.
+     검색 결과에 리치 스니펫으로 노출될 확률이 올라갑니다. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "다듬 스튜디오",
+  "alternateName": "한국어 맞춤법 검사기",
+  "url": "https://YOUR-DOMAIN.com/",
+  "description": "한국어 맞춤법과 띄어쓰기를 실시간으로 검사하고, 문장의 어조를 격식체·해요체·개조식으로 변환해 주는 무료 웹 도구입니다.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "All",
+  "inLanguage": "ko",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  },
+  "featureList": [
+    "실시간 맞춤법 검사",
+    "띄어쓰기 검사",
+    "어조 변환 (격식체·해요체·개조식)",
+    "PDF·DOCX·TXT 파일 업로드 검사",
+    "사용자 사전 등록",
+    "국립국어원 표준국어대사전 검색"
+  ]
+}
+</script>
+
+<!-- FAQ 구조화 데이터: 검색 결과에서 질문/답변이 펼쳐져 노출됩니다.
+     클릭률(CTR)을 크게 올려주는 요소이니 FAQ 항목을 늘릴수록 유리합니다. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "다듬 스튜디오 맞춤법 검사기는 무료인가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네, 회원가입이나 설치 없이 완전히 무료로 사용할 수 있습니다. 웹 브라우저에서 바로 문장을 붙여넣으면 맞춤법과 띄어쓰기 검사 결과가 나옵니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "입력한 글이 서버에 저장되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "입력한 글은 검사에 필요한 순간에만 처리되며 별도로 저장하지 않습니다. 사용자 사전에 등록한 단어만 사용자의 브라우저 안에 보관됩니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "'되'와 '돼'는 어떻게 구분하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "'돼'는 '되어'의 줄임말입니다. 문장에 '되어'를 넣어 말이 되면 '돼', 어색하면 '되'를 씁니다. 예를 들어 '그렇게 하면 안 돼'는 '안 되어'로 풀 수 있으니 '돼'가 맞고, '안 되니까'는 '안 되어니까'가 어색하므로 '되'가 맞습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "어조 변환 기능은 무엇인가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "같은 내용을 격식체(합쇼체), 친근체(해요체), 보고서체(개조식)로 문장 끝맺음을 바꿔주는 기능입니다. 자기소개서나 업무 보고서처럼 문체를 통일해야 하는 글에 유용합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "한글 파일이나 PDF도 검사할 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PDF, DOCX(워드), TXT 파일을 업로드하면 본문 텍스트를 자동으로 추출해 검사합니다. 상단의 '파일 불러오기' 버튼을 사용하세요."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body data-theme="light">
+
+  <!-- ================= 실행 방법 안내 배너 =================
+       index.html을 더블클릭해서 열면(file:// 프로토콜) 검사 서버에 연결할 수
+       없어 정밀 검사와 국어사전이 동작하지 않습니다. 예전에는 화면 우측 상단의
+       작은 상태 표시로만 알 수 있어 "왜 안 되지?"로 이어졌기 때문에,
+       눈에 띄는 배너로 원인과 해결 방법을 바로 알려줍니다.
+       (app.js가 상황에 맞는 문구를 채우고 표시 여부를 결정합니다.)
+       ====================================================== -->
+  <div class="setup-banner" id="setupBanner" role="alert" style="display:none;">
+    <span class="setup-banner-icon">⚠️</span>
+    <div class="setup-banner-body">
+      <strong id="setupBannerTitle"></strong>
+      <span id="setupBannerText"></span>
+    </div>
+    <button class="setup-banner-close" id="setupBannerClose" title="닫기">&times;</button>
+  </div>
+
+  <!-- ================= Header ================= -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="header-brand" title="메인 화면으로 이동">
+        <img src="logo.png" alt="다듬 스튜디오 로고" class="brand-logo">
+        <div class="brand-title-wrap">
+          <!-- 페이지의 유일한 h1. 검색엔진이 이 페이지의 주제를 판단하는 핵심 신호입니다. -->
+          <h1 class="brand-name">다듬 스튜디오</h1>
+          <span class="brand-badge">맞춤법 · 띄어쓰기 검사기</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <span class="engine-status" id="engineStatus" title="맞춤법 검사 엔진 상태">⚪ 연결 확인 중...</span>
+        <button class="btn-icon-text" id="btnKoDict">📔 국어사전</button>
+        <button class="btn-icon-text" id="btnCustomDict">📖 사용자 사전</button>
+        <label class="btn-icon-text" for="fileUploadInput" style="cursor:pointer;">📂 파일 불러오기</label>
+        <input type="file" id="fileUploadInput" accept=".txt,.pdf,.docx" hidden>
+        <button class="theme-toggle" id="themeToggle" title="라이트/다크 모드 전환">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Main ================= -->
+  <main class="main-container">
+
+    <!-- Toolbar -->
+    <div class="control-toolbar">
+      <div class="toolbar-left">
+        <div class="mode-select-group">
+          <button class="mode-btn active" id="modeRealtimeBtn">실시간 검사</button>
+          <button class="mode-btn" id="modeManualBtn">수동 검사</button>
+        </div>
+        <div class="tone-selector-wrap">
+          <span>✨ 어조 변환</span>
+          <select class="tone-select" id="toneSelect">
+            <option value="none">선택 안 함</option>
+            <option value="formal">격식체 (합쇼체)</option>
+            <option value="polite">친근체 (해요체)</option>
+            <option value="report">보고서체 (개조식)</option>
+          </select>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn-secondary" id="btnApplyAll" style="display:none;">✅ 전체 교정 적용</button>
+        <button class="btn-primary" id="btnRunCheck">🔍 검사하기</button>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace-grid">
+
+      <!-- Input Panel -->
+      <section class="card-panel">
+        <div class="card-header">
+          <span class="card-title"><span class="card-title-icon"></span>원문 입력</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-icon-text" id="btnCopyOriginal">복사</button>
+            <button class="btn-icon-text" id="btnClearText">지우기</button>
+          </div>
+        </div>
+        <div class="input-area-wrap">
+          <div id="inputHighlightLayer" class="input-highlight-layer" aria-hidden="true"></div>
+          <textarea id="inputTextarea" class="editor-textarea" placeholder="맞춤법과 띄어쓰기를 검사할 문장을 입력하세요..." spellcheck="false"></textarea>
+        </div>
+        <div class="card-footer">
+          <div class="text-stats">
+            <span class="stat-item">공백 포함 <span id="charCountWithSpace">0</span>자</span>
+            <span class="stat-item">공백 제외 <span id="charCountNoSpace">0</span>자</span>
+            <span class="stat-item">단어 <span id="wordCount">0</span>개</span>
+            <span class="stat-item">읽기 시간 약 <span id="readTime">0 분</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output Panel -->
+      <section class="card-panel">
+        <div class="card-header">
+          <span class="card-title"><span class="card-title-icon"></span>교정 결과</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-icon-text" id="btnCopyResult">교정본 복사</button>
+            <button class="btn-icon-text" id="btnExportFile">파일 저장</button>
+          </div>
+        </div>
+        <div class="tone-notice" id="toneNotice" style="display:none;">
+          <span id="toneNoticeText"></span>
+          <button class="tone-notice-reset" id="btnResetTone">원문으로 되돌리기</button>
+        </div>
+        <div class="error-summary-bar" id="summaryChipsContainer"></div>
+        <div class="output-content-wrap" id="outputContainer">
+          <div class="empty-state" id="emptyStateContainer">
+            <div class="empty-icon">📝</div>
+            <div class="empty-text">왼쪽에 문장을 입력하면 검사 결과가 여기에 표시됩니다.</div>
+          </div>
+          <div class="rendered-text" id="renderedTextContainer" style="display:none;"></div>
+          <div class="cards-list" id="cardsListContainer"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ====================================================================
+         SEO 콘텐츠 영역
+         검색엔진은 "읽을 텍스트"가 있어야 페이지를 평가할 수 있습니다.
+         도구 UI만 있는 페이지는 색인 가치가 낮다고 판단되어 순위가 오르지
+         않고, 구글 애드센스 심사에서도 "가치 있는 콘텐츠 없음"으로 거절되는
+         가장 흔한 원인입니다. 이 영역의 글을 계속 늘려가세요.
+         ==================================================================== -->
+    <section class="seo-content">
+
+      <h2>무료 한국어 맞춤법·띄어쓰기 검사기</h2>
+      <p>
+        다듬 스튜디오는 회원가입이나 프로그램 설치 없이 웹 브라우저에서 바로 쓸 수 있는
+        한국어 교정 도구입니다. 위 입력창에 문장을 붙여넣으면 맞춤법 오류, 띄어쓰기 오류,
+        어색한 어휘 선택을 종류별로 구분해 표시하고, 각 오류마다 왜 틀렸는지 근거와 함께
+        고친 문장을 제안합니다. 자기소개서, 과제 보고서, 논문 초록, 업무 메일처럼
+        문장의 완성도가 중요한 글을 쓸 때 마지막 점검용으로 사용해 보세요.
+      </p>
+
+      <h2>이런 기능이 있습니다</h2>
+      <div class="feature-grid">
+        <article class="feature-item">
+          <h3>실시간 검사</h3>
+          <p>
+            타이핑을 멈추면 자동으로 검사가 돌아갑니다. 버튼을 누를 필요 없이
+            글을 쓰면서 바로 오류를 확인할 수 있습니다. 긴 글을 한 번에 점검하고 싶다면
+            수동 검사 모드로 바꿔 원할 때만 검사할 수도 있습니다.
+          </p>
+        </article>
+        <article class="feature-item">
+          <h3>어조 변환</h3>
+          <p>
+            같은 내용을 격식체(합쇼체), 친근체(해요체), 보고서체(개조식)로 바꿔줍니다.
+            "~입니다"로 통일해야 하는 자기소개서, "~함/~임"으로 끝내야 하는 업무 보고서처럼
+            문체를 맞춰야 할 때 문장 끝맺음을 일괄로 정리할 수 있습니다.
+          </p>
+        </article>
+        <article class="feature-item">
+          <h3>파일 업로드 검사</h3>
+          <p>
+            PDF, 워드(DOCX), 텍스트(TXT) 파일을 올리면 본문을 자동으로 추출해 검사합니다.
+            수십 페이지짜리 문서를 복사·붙여넣기로 옮길 필요가 없습니다.
+          </p>
+        </article>
+        <article class="feature-item">
+          <h3>사용자 사전</h3>
+          <p>
+            회사명, 제품명, 인명, 신조어처럼 사전에 없는 단어가 계속 오류로 잡힌다면
+            사용자 사전에 등록해 검사에서 제외할 수 있습니다. 등록한 단어는
+            사용자의 브라우저에만 저장됩니다.
+          </p>
+        </article>
+        <article class="feature-item">
+          <h3>국어사전 검색</h3>
+          <p>
+            국립국어원 표준국어대사전 공식 데이터를 연동했습니다. 헷갈리는 단어의
+            정확한 뜻과 품사를 검사 화면을 벗어나지 않고 바로 찾아볼 수 있습니다.
+          </p>
+        </article>
+        <article class="feature-item">
+          <h3>글자 수 통계</h3>
+          <p>
+            공백 포함·제외 글자 수, 단어 수, 예상 읽기 시간을 실시간으로 보여줍니다.
+            글자 수 제한이 있는 자기소개서 항목을 작성할 때 유용합니다.
+          </p>
+        </article>
+      </div>
+
+      <h2>한국어에서 가장 많이 틀리는 맞춤법</h2>
+      <dl class="rule-list">
+        <dt>되 / 돼</dt>
+        <dd>
+          '돼'는 '되어'의 줄임말입니다. 문장에 <strong>'되어'를 넣어 말이 되면 '돼'</strong>,
+          어색하면 '되'를 씁니다. "그렇게 하면 안 돼"는 "안 되어"로 풀리니 '돼'가 맞고,
+          "안 되니까"는 "안 되어니까"가 어색하므로 '되'가 맞습니다.
+        </dd>
+
+        <dt>안 / 않</dt>
+        <dd>
+          '안'은 '아니'의 준말로 <strong>동사 앞에 따로 띄어 씁니다</strong>("안 먹었다").
+          '않'은 '아니하'의 준말로 <strong>어간에 붙어 활용합니다</strong>("먹지 않았다").
+          문장에서 그 글자를 빼도 말이 되면 '안', 어색하면 '않'입니다.
+        </dd>
+
+        <dt>몇 일 / 며칠</dt>
+        <dd>
+          '몇일'이라는 표기는 없습니다. 언제나 <strong>'며칠'</strong>이 올바른 표기입니다.
+          "오늘이 며칠이지?", "며칠 동안 고생했다"처럼 씁니다.
+        </dd>
+
+        <dt>왠지 / 웬지</dt>
+        <dd>
+          '왠지'는 '왜인지'의 준말로 <strong>'왠지'만 맞는 표기</strong>입니다('웬지'는 틀림).
+          반대로 "웬 사람이 이렇게 많아", "웬일이야"처럼 '어찌 된'의 뜻일 때는 '웬'을 씁니다.
+        </dd>
+
+        <dt>-데 / -대</dt>
+        <dd>
+          <strong>'-데'는 내가 직접 겪은 일</strong>을 전할 때("가 보니 춥데"),
+          <strong>'-대'는 남에게 들은 말</strong>을 전할 때("거기 춥대") 씁니다.
+        </dd>
+
+        <dt>띄어쓰기: 의존 명사</dt>
+        <dd>
+          '것', '수', '바', '뿐', '만큼', '데'가 <strong>의존 명사로 쓰이면 띄어 씁니다</strong>
+          ("할 수 있다", "먹을 만큼"). 다만 조사로 쓰일 때는 붙입니다("너뿐이야", "너만큼").
+        </dd>
+      </dl>
+
+      <h2 id="faq">자주 묻는 질문</h2>
+      <div class="faq-list">
+        <details>
+          <summary>정말 무료인가요?</summary>
+          <p>
+            네. 회원가입이나 결제 없이 모든 기능을 사용할 수 있습니다.
+            사용 횟수 제한도 없습니다.
+          </p>
+        </details>
+        <details>
+          <summary>입력한 글이 저장되나요?</summary>
+          <p>
+            입력한 글은 검사에 필요한 순간에만 처리되며 서버에 저장하지 않습니다.
+            사용자 사전에 등록한 단어와 화면 테마 설정만 사용자의 브라우저 안에
+            보관됩니다. 자세한 내용은 개인정보처리방침을 확인해 주세요.
+          </p>
+        </details>
+        <details>
+          <summary>한 번에 얼마나 긴 글을 검사할 수 있나요?</summary>
+          <p>
+            한 번에 5만 자까지 검사할 수 있습니다. 긴 글은 자동으로 문단 단위로 나눠
+            순서대로 검사하므로 결과가 나오기까지 시간이 조금 더 걸릴 수 있습니다.
+          </p>
+        </details>
+        <details>
+          <summary>검사 결과가 항상 정확한가요?</summary>
+          <p>
+            맞춤법 검사는 문맥을 완벽하게 이해하지 못하므로, 문학적 표현이나 고유명사,
+            전문 용어는 오류로 잘못 표시될 수 있습니다. 제안된 교정은 참고 자료로 활용하시고
+            최종 판단은 직접 해주세요. 반복해서 잘못 잡히는 단어는 사용자 사전에 등록하면 됩니다.
+          </p>
+        </details>
+        <details>
+          <summary>모바일에서도 쓸 수 있나요?</summary>
+          <p>
+            네. 스마트폰과 태블릿 브라우저에서도 동일하게 사용할 수 있습니다.
+            앱을 설치할 필요는 없습니다.
+          </p>
+        </details>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ================= Footer =================
+       애드센스 심사에서는 운영 주체와 정책을 밝히는 페이지가 사이트 전체에서
+       접근 가능해야 합니다. 이 링크들이 없으면 대부분 거절됩니다.
+       ========================================== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <strong>다듬 스튜디오</strong>
+        <span>한국어 맞춤법·띄어쓰기 검사기</span>
+      </div>
+      <nav class="footer-links" aria-label="사이트 정보">
+        <a href="about.html">사이트 소개</a>
+        <a href="privacy.html">개인정보처리방침</a>
+        <a href="terms.html">이용약관</a>
+        <a href="contact.html">문의하기</a>
+      </nav>
+      <p class="footer-note">
+        국어사전 데이터 출처: 국립국어원 표준국어대사전<br>
+        &copy; 2026 다듬 스튜디오. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================= Custom Dictionary Modal ================= -->
+  <div class="modal-overlay" id="dictModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">📖 사용자 사전 관리</span>
+        <button class="modal-close" id="dictModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.85rem; color:var(--text-muted);">등록한 단어는 검사에서 제외됩니다. (고유명사, 신조어 등)</p>
+        <div class="dict-input-wrap">
+          <input type="text" id="dictInput" class="input-text" placeholder="제외할 단어 입력 후 Enter">
+          <button class="btn-primary" id="btnAddDict">추가</button>
+        </div>
+        <div class="dict-list" id="dictTagsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Korean Dictionary Modal ================= -->
+  <div class="modal-overlay" id="koDictModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">📔 국어사전 검색</span>
+        <button class="modal-close" id="koDictModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="dict-input-wrap">
+          <input type="text" id="koDictInput" class="input-text" placeholder="뜻을 찾을 단어 입력 후 Enter">
+          <button class="btn-primary" id="btnKoDictSearch">검색</button>
+        </div>
+        <div id="koDictResult" class="ko-dict-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF / DOCX 텍스트 추출 라이브러리 (파일 업로드 파싱용) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+
+  <script src="js/checker-engine.js"></script>
+  <script src="js/tone-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
