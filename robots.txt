@@ -1,4 +1,4 @@
-﻿# 다듬 스튜디오 robots.txt
+# 다듬 스튜디오 robots.txt
 
 User-agent: *
 Allow: /
